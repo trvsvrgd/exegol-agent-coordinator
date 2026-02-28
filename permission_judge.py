@@ -27,6 +27,28 @@ def evaluate_action(action: ActionRequest, agent: AgentProfile) -> PermissionDec
         else:
             requires_approval = True
             reason = "Commit not allowed; approval required."
+    elif action.action_type == "run_tests":
+        permissions = set(agent.permissions)
+        if "tests:run" in permissions:
+            requires_approval = False
+            reason = "Test execution allowed."
+        elif "tests:run:requires-approval" in permissions:
+            requires_approval = True
+            reason = "Test execution requires approval."
+        else:
+            requires_approval = True
+            reason = "Test execution not allowed; approval required."
+    elif action.action_type == "cursor_prompt":
+        permissions = set(agent.permissions)
+        if "cursor:prompt" in permissions:
+            requires_approval = False
+            reason = "Cursor prompt allowed."
+        elif "cursor:prompt:requires-approval" in permissions:
+            requires_approval = True
+            reason = "Cursor prompt requires approval."
+        else:
+            requires_approval = True
+            reason = "Cursor prompt not allowed; approval required."
 
     log_event(
         "permission_check",

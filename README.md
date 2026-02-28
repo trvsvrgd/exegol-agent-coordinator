@@ -21,6 +21,12 @@ streamlit run ui_dashboard.py
 3. The Inquisitor requires approval and surfaces a request in the UI.
 4. Approve or deny; approvals execute the commit and log telemetry.
 
+## Repo Test Audit + Cursor Prompts
+1. Click **Run Repo Test Audit** to request test execution for each repo in the workspace.
+2. Approve a request to run tests (sandbox mode controls execution).
+3. Each repo’s `plan.md` receives a requirements update with results.
+4. Click **Queue Cursor Prompts** to generate Cursor tasks per repo plan.
+
 ## State & Config
 - `plan.md` and `agents.md` are the human-readable source of truth.
 - Runtime state is stored in `state/runtime_state.json`.
@@ -32,6 +38,7 @@ Optional environment overrides:
 - `EXEGOL_WORKSPACE_DIR`
 - `EXEGOL_PLAN_PATH`
 - `EXEGOL_AGENTS_PATH`
+- `EXEGOL_SANDBOX_MODE` (`noop` or `docker`)
 
 ## Tests
 ```bash

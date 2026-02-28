@@ -1,15 +1,17 @@
 from __future__ import annotations
 
 import re
-from typing import List
+from typing import List, Optional
 
 import yaml
 
 from config import get_agents_path, get_plan_path
+from llm_router import format_cursor_instructions
 from models import ActionRequest, AgentProfile
 from observability import log_event, timer
 from permission_judge import evaluate_action
 from state_store import add_permission_request, append_activity
+from workspace_execution import WorkspaceExecutor
 
 
 def _extract_yaml_block(markdown: str) -> str:
@@ -43,6 +45,14 @@ class AgentManager:
     def __init__(self) -> None:
         self.agents = load_agents()
         self.plan = load_plan()
+        self.executor = WorkspaceExecutor()
+
+    def _select_agent(self, permission_prefix: str) -> Optional[AgentProfile]:
+        for agent in self.agents:
+            for permission in agent.permissions:
+                if permission.startswith(permission_prefix):
+                    return agent
+        return None
 
     def run_demo_flow(self) -> str:
         with timer("demo_flow"):
@@ -75,3 +85,79 @@ class AgentManager:
 
             log_event("demo_flow_auto_approved", {"reason": decision.reason})
             return "auto-approved"
+
+    def run_repo_test_audit(self, command: str = "pytest") -> List[str]:
+        with timer("repo_test_audit"):
+            agent = self._select_agent("tests:run")
+            if agent is None:
+                raise RuntimeError("No agent configured with tests:run permissions.")
+
+            request_ids = []
+            for repo_path in self.executor.list_repos():
+                action = ActionRequest(
+                    action_type="run_tests",
+                    description=f"Run tests in {repo_path.name}",
+                    payload={
+                        "repo_path": str(repo_path),
+                        "command": command,
+                        "update_plan": True,
+                    },
+                )
+                decision = evaluate_action(action, agent)
+                if decision.requires_approval:
+                    request_id = add_permission_request(
+                        title=f"Run tests for {repo_path.name}",
+                        action={
+                            "action_type": action.action_type,
+                            "description": action.description,
+                            "payload": action.payload,
+                        },
+                        agent={"name": agent.name, "role": agent.role},
+                    )
+                    request_ids.append(request_id)
+                    append_activity(f"Permission requested for tests in {repo_path.name}")
+                else:
+                    self.executor.execute_action(action)
+                    append_activity(f"Tests executed for {repo_path.name}")
+            return request_ids
+
+    def run_cursor_prompt_flow(self) -> List[str]:
+        with timer("cursor_prompt_flow"):
+            agent = self._select_agent("cursor:prompt")
+            if agent is None:
+                raise RuntimeError("No agent configured with cursor:prompt permissions.")
+
+            request_ids = []
+            for repo_path in self.executor.list_repos():
+                plan_path = repo_path / "plan.md"
+                if plan_path.exists():
+                    plan_content = plan_path.read_text(encoding="utf-8")
+                else:
+                    plan_content = "# Plan\n"
+                snippet = plan_content.replace("\n", " ")[:400]
+                task = (
+                    f"Review and update {repo_path.name}/plan.md based on test results."
+                )
+                prompt = format_cursor_instructions(f"{task}\nPlan snapshot: {snippet}")
+                action = ActionRequest(
+                    action_type="cursor_prompt",
+                    description=f"Queue Cursor prompt for {repo_path.name}",
+                    payload={"repo_path": str(repo_path), "prompt": prompt},
+                )
+                decision = evaluate_action(action, agent)
+                if decision.requires_approval:
+                    request_id = add_permission_request(
+                        title=f"Queue Cursor prompt for {repo_path.name}",
+                        action={
+                            "action_type": action.action_type,
+                            "description": action.description,
+                            "payload": action.payload,
+                        },
+                        agent={"name": agent.name, "role": agent.role},
+                    )
+                    request_ids.append(request_id)
+                    append_activity(f"Permission requested for Cursor prompt in {repo_path.name}")
+                else:
+                    self.executor.execute_action(action)
+                    append_activity(f"Cursor prompt queued for {repo_path.name}")
+            return request_ids

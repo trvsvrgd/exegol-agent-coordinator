@@ -31,6 +31,10 @@ def get_agents_path() -> Path:
     return _env_path("EXEGOL_AGENTS_PATH", BASE_DIR / "agents.md")
 
 
+def get_sandbox_mode() -> str:
+    return os.getenv("EXEGOL_SANDBOX_MODE", "noop").strip().lower()
+
+
 def ensure_directories() -> None:
     for path in (get_state_dir(), get_log_dir(), get_workspace_dir()):
         path.mkdir(parents=True, exist_ok=True)

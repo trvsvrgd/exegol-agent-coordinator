@@ -14,6 +14,7 @@ def _default_state() -> Dict[str, Any]:
         "activity": [],
         "permission_requests": [],
         "interview": [],
+        "cursor_prompts": [],
         "last_updated": time.time(),
     }
 
@@ -95,3 +96,17 @@ def add_interview_message(role: str, content: str) -> None:
         }
     )
     save_state(state)
+
+
+def add_cursor_prompt(repo_path: str, prompt: str) -> None:
+    state = load_state()
+    state["cursor_prompts"].append(
+        {
+            "id": str(uuid.uuid4()),
+            "repo_path": repo_path,
+            "prompt": prompt,
+            "timestamp": time.time(),
+        }
+    )
+    save_state(state)
+    log_event("cursor_prompt", {"repo_path": repo_path})

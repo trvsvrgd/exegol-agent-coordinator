@@ -27,6 +27,12 @@ Build a minimal demo app to validate agent orchestration and permissions.
     - [x] Task 2.2: Add tests for demo flow + state updates
     - [ ] Task 2.3: Record test evidence in Verification Log
 
+- [ ] **Phase 3: Agent Extensions**
+    - [x] Task 3.1: Add test-execution agent with sandbox runner
+    - [x] Task 3.2: Update per-repo `plan.md` after test runs
+    - [x] Task 3.3: Add Cursor prompt agent + UI display
+    - [x] Task 3.4: Add tests for repo audit workflow
+
 ## Verification Evidence (For Auditors)
 - [AI to paste terminal logs or test results here after each successful run]
 

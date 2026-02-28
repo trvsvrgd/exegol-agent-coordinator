@@ -101,22 +101,43 @@ def _render_permissions(state: Dict[str, Any]) -> None:
             st.experimental_rerun()
 
 
+def _render_cursor_prompts(state: Dict[str, Any]) -> None:
+    st.subheader("Cursor Prompts")
+    prompts = state.get("cursor_prompts", [])
+    if not prompts:
+        st.write("No Cursor prompts queued.")
+        return
+    for prompt in reversed(prompts)[-10:]:
+        st.markdown(f"**{Path(prompt['repo_path']).name}**")
+        st.code(prompt["prompt"])
+
+
 def main() -> None:
     st.set_page_config(page_title="Exegol - The Dark Throne", layout="wide")
     st.title("Exegol — The Dark Throne")
 
     state = load_state()
 
-    if st.button("Run Demo Flow"):
-        manager = AgentManager()
+    manager = AgentManager()
+    col1, col2, col3 = st.columns(3)
+    if col1.button("Run Demo Flow"):
         manager.run_demo_flow()
         append_activity("Demo flow triggered")
+        st.experimental_rerun()
+    if col2.button("Run Repo Test Audit"):
+        manager.run_repo_test_audit()
+        append_activity("Repo test audit triggered")
+        st.experimental_rerun()
+    if col3.button("Queue Cursor Prompts"):
+        manager.run_cursor_prompt_flow()
+        append_activity("Cursor prompt flow triggered")
         st.experimental_rerun()
 
     _render_interview(state)
     _render_activity(state)
     _render_ops_dashboard()
     _render_permissions(state)
+    _render_cursor_prompts(state)
 
 
 if __name__ == "__main__":
