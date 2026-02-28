@@ -32,6 +32,27 @@ def _load_ops_events() -> List[Dict[str, Any]]:
     return events
 
 
+def _tooltip(label: str, text: str) -> str:
+    safe_text = text.replace('"', "&quot;")
+    return f"<span title=\"{safe_text}\">{label}</span>"
+
+
+def _render_component_legend() -> None:
+    st.subheader("System Map")
+    legend = [
+        ("Dark Throne", "UI layer in ui_dashboard.py (user inputs, approvals)."),
+        ("Cloning Vats", "Agent orchestration in agent_manager.py."),
+        ("Wayfinder", "LLM routing decisions in llm_router.py."),
+        ("Final Order", "Workspace execution in workspace_execution.py."),
+        ("Inquisitor", "Permission checks in permission_judge.py."),
+    ]
+    parts = [f"<strong>{_tooltip(name, desc)}</strong>" for name, desc in legend]
+    st.markdown(" • ".join(parts), unsafe_allow_html=True)
+    st.caption(
+        "Hover the component names to see where each action is executed."
+    )
+
+
 def _render_interview(state: Dict[str, Any]) -> None:
     st.subheader("User Interview")
     for entry in state.get("interview", []):
@@ -44,15 +65,33 @@ def _render_interview(state: Dict[str, Any]) -> None:
         decision = route_prompt(prompt, intent="interview")
         response = f"Interview queued via {decision.provider}. Captured: {prompt}"
         add_interview_message("assistant", response)
-        append_activity("Captured interview input", {"provider": decision.provider})
-        st.experimental_rerun()
+        append_activity(
+            "Captured interview input",
+            {
+                "component": "Wayfinder",
+                "location": "llm_router.py",
+                "llm_used": decision.provider,
+                "provider": decision.provider,
+            },
+        )
+        st.rerun()
 
 
 def _render_activity(state: Dict[str, Any]) -> None:
     st.subheader("Activity Feed")
     activities = list(reversed(state.get("activity", [])))[:10]
     for activity in activities:
-        st.write(f"- {activity['message']}")
+        metadata = activity.get("metadata", {})
+        component = metadata.get("component", "Unknown")
+        location = metadata.get("location", "Unknown")
+        llm_used = metadata.get("llm_used", "none")
+        detail = (
+            f"{_tooltip('Component', 'Subsystem that executed the action')}: {component} | "
+            f"{_tooltip('Location', 'Module where the action ran')}: {location} | "
+            f"{_tooltip('LLM', 'Provider used for this action')}: {llm_used}"
+        )
+        st.markdown(f"**{activity['message']}**", unsafe_allow_html=True)
+        st.markdown(detail, unsafe_allow_html=True)
 
 
 def _render_ops_dashboard() -> None:
@@ -66,6 +105,18 @@ def _render_ops_dashboard() -> None:
     col1.metric("LLM Routes", len(routing))
     col2.metric("Avg Routing Latency (ms)", avg_latency)
     col3.metric("Total Events", len(events))
+
+    last_route = next((e for e in reversed(routing)), None)
+    if last_route:
+        details = (
+            f"Provider: {last_route.get('provider')} | "
+            f"Reason: {last_route.get('reason')} | "
+            f"Latency: {last_route.get('latency_ms')}ms"
+        )
+        st.markdown(
+            f"{_tooltip('Last LLM decision', 'Most recent routing choice')} : {details}",
+            unsafe_allow_html=True,
+        )
 
     st.caption("Recent events")
     for event in events[-5:]:
@@ -83,6 +134,15 @@ def _render_permissions(state: Dict[str, Any]) -> None:
     for request in pending:
         st.markdown(f"**{request['title']}**")
         st.write(f"Agent: {request['agent']['name']} ({request['agent']['role']})")
+        if request.get("reason"):
+            st.markdown(f"_Paused for approval_: {request['reason']}")
+        origin = request.get("origin", {})
+        if origin:
+            origin_line = (
+                f"{_tooltip('Origin', 'Permission was evaluated here')}: "
+                f"{origin.get('component', 'Unknown')} / {origin.get('location', 'Unknown')}"
+            )
+            st.markdown(origin_line, unsafe_allow_html=True)
         st.code(request["action"]["description"])
         col1, col2 = st.columns(2)
         if col1.button("Approve", key=f"approve-{request['id']}"):
@@ -93,12 +153,26 @@ def _render_permissions(state: Dict[str, Any]) -> None:
             )
             executor.execute_action(action)
             update_permission_request(request["id"], "approved")
-            append_activity("Permission approved and action executed")
-            st.experimental_rerun()
+            append_activity(
+                "Permission approved and action executed",
+                {
+                    "component": "Inquisitor",
+                    "location": "permission_judge.py",
+                    "llm_used": "none",
+                },
+            )
+            st.rerun()
         if col2.button("Deny", key=f"deny-{request['id']}"):
             update_permission_request(request["id"], "denied")
-            append_activity("Permission denied")
-            st.experimental_rerun()
+            append_activity(
+                "Permission denied",
+                {
+                    "component": "Inquisitor",
+                    "location": "permission_judge.py",
+                    "llm_used": "none",
+                },
+            )
+            st.rerun()
 
 
 def _render_cursor_prompts(state: Dict[str, Any]) -> None:
@@ -107,6 +181,9 @@ def _render_cursor_prompts(state: Dict[str, Any]) -> None:
     if not prompts:
         st.write("No Cursor prompts queued.")
         return
+    st.caption(
+        "No actions happen in Cursor unless a prompt is queued here."
+    )
     for prompt in reversed(prompts)[-10:]:
         st.markdown(f"**{Path(prompt['repo_path']).name}**")
         st.code(prompt["prompt"])
@@ -122,17 +199,27 @@ def main() -> None:
     col1, col2, col3 = st.columns(3)
     if col1.button("Run Demo Flow"):
         manager.run_demo_flow()
-        append_activity("Demo flow triggered")
-        st.experimental_rerun()
+        append_activity(
+            "Demo flow triggered",
+            {"component": "Dark Throne", "location": "ui_dashboard.py", "llm_used": "none"},
+        )
+        st.rerun()
     if col2.button("Run Repo Test Audit"):
         manager.run_repo_test_audit()
-        append_activity("Repo test audit triggered")
-        st.experimental_rerun()
+        append_activity(
+            "Repo test audit triggered",
+            {"component": "Dark Throne", "location": "ui_dashboard.py", "llm_used": "none"},
+        )
+        st.rerun()
     if col3.button("Queue Cursor Prompts"):
         manager.run_cursor_prompt_flow()
-        append_activity("Cursor prompt flow triggered")
-        st.experimental_rerun()
+        append_activity(
+            "Cursor prompt flow triggered",
+            {"component": "Dark Throne", "location": "ui_dashboard.py", "llm_used": "none"},
+        )
+        st.rerun()
 
+    _render_component_legend()
     _render_interview(state)
     _render_activity(state)
     _render_ops_dashboard()

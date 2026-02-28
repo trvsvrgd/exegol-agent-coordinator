@@ -1,46 +1,45 @@
-# Mock Build Plan (V1)
+# Exegol V1 Plan
 
-## Objective
-Build a minimal demo app to validate agent orchestration and permissions.
+## Status Summary
+- **Objective**: Build a minimal demo app to validate agent orchestration + permissions.
+- **Current Focus**: Validation evidence + packaging polish.
+- **Workspace**: Local, Streamlit UI, markdown-driven state.
 
-## Architecture Summary
+## Architecture Snapshot
 - Streamlit UI for interview, progress, approvals
 - Local markdown-driven agents and plan
 - Local workspace for git operations and sandbox tests
 
-## Phases
-1. Scaffold modules and UI shell
-2. Add permission gating for risky actions
-3. Log timing and routing metrics
-# Execution & Audit Roadmap
+## In Progress (Do Next)
+- [ ] Record test evidence in Verification Log
+- [ ] Run smoke checks on UI flows
 
-## Roadmap & Compliance Progress
-- [x] **Phase 1: Secure Initialization**
-    - [x] Task 1.1: Initialize a Python test framework (pytest)
-    - [x] Task 1.2: Create `.gitignore` for secrets/local data
-    - [x] Task 1.3: Scaffold core modules + UI shell
-    - [x] Task 1.4: Add mock runtime files (`plan.md`, `agents.md`)
-    - [x] Task 1.5: Add observability logging + demo flow
+## Backlog (Planned Work)
+- [ ] Improve sandbox runner reliability (docker health checks + timeout handling)
+- [ ] Add audit export for ops metrics
+- [ ] Expand per-repo plan updates to include failing test names
+- [ ] The UI needs to be be dark and stormy like exegol with other star wars aesthetics
 
-- [ ] **Phase 2: Validation & Evidence**
-    - [x] Task 2.1: Add tests for routing + permissions
-    - [x] Task 2.2: Add tests for demo flow + state updates
-    - [ ] Task 2.3: Record test evidence in Verification Log
+## Completed
+- [x] Initialize pytest
+- [x] Create `.gitignore` for secrets/local data
+- [x] Scaffold core modules + UI shell
+- [x] Add mock runtime files (`plan.md`, `agents.md`)
+- [x] Add observability logging + demo flow
+- [x] Add tests for routing + permissions
+- [x] Add tests for demo flow + state updates
+- [x] Add test-execution agent with sandbox runner
+- [x] Update per-repo `plan.md` after test runs
+- [x] Add Cursor prompt agent + UI display
+- [x] Add tests for repo audit workflow
+- [x] Add PyInstaller build script + spec
+- [x] Document .exe build in README
+- [x] Add one-click launcher scripts
+- [x] Add MSI installer scaffolding (WiX)
+- [x] Add icon preparation workflow
 
-- [ ] **Phase 3: Agent Extensions**
-    - [x] Task 3.1: Add test-execution agent with sandbox runner
-    - [x] Task 3.2: Update per-repo `plan.md` after test runs
-    - [x] Task 3.3: Add Cursor prompt agent + UI display
-    - [x] Task 3.4: Add tests for repo audit workflow
-
-- [ ] **Phase 4: Windows Packaging**
-    - [x] Task 4.1: Add PyInstaller build script + spec
-    - [x] Task 4.2: Document .exe build in README
-
-- [ ] **Phase 5: Windows UX**
-    - [x] Task 5.1: Add one-click launcher scripts
-    - [x] Task 5.2: Add MSI installer scaffolding (WiX)
-    - [x] Task 5.3: Add icon preparation workflow
+## Requirements Inbox (Add New Ideas Here)
+- [ ] Example requirement here
 
 ## Verification Evidence (For Auditors)
 - [AI to paste terminal logs or test results here after each successful run]

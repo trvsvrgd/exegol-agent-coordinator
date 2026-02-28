@@ -55,7 +55,11 @@ def append_activity(message: str, metadata: Optional[Dict[str, Any]] = None) -> 
 
 
 def add_permission_request(
-    title: str, action: Dict[str, Any], agent: Dict[str, Any]
+    title: str,
+    action: Dict[str, Any],
+    agent: Dict[str, Any],
+    reason: Optional[str] = None,
+    origin: Optional[Dict[str, Any]] = None,
 ) -> str:
     state = load_state()
     request_id = str(uuid.uuid4())
@@ -65,6 +69,8 @@ def add_permission_request(
             "title": title,
             "action": action,
             "agent": agent,
+            "reason": reason,
+            "origin": origin or {},
             "status": "pending",
             "timestamp": time.time(),
         }

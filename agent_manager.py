@@ -57,8 +57,14 @@ class AgentManager:
     def run_demo_flow(self) -> str:
         with timer("demo_flow"):
             agent = self.agents[-1]
-            append_activity(f"{agent.name} reads plan.md")
-            append_activity("Preparing git commit action")
+            append_activity(
+                f"{agent.name} reads plan.md",
+                {"component": "Cloning Vats", "location": "agent_manager.py"},
+            )
+            append_activity(
+                "Preparing git commit action",
+                {"component": "Cloning Vats", "location": "agent_manager.py"},
+            )
 
             action = ActionRequest(
                 action_type="git_commit",
@@ -75,8 +81,17 @@ class AgentManager:
                         "payload": action.payload,
                     },
                     agent={"name": agent.name, "role": agent.role},
+                    reason=decision.reason,
+                    origin={"component": "Inquisitor", "location": "permission_judge.py"},
                 )
-                append_activity("Permission requested for git commit")
+                append_activity(
+                    "Permission requested for git commit",
+                    {
+                        "component": "Inquisitor",
+                        "location": "permission_judge.py",
+                        "reason": decision.reason,
+                    },
+                )
                 log_event(
                     "demo_flow_paused",
                     {"request_id": request_id, "reason": decision.reason},
@@ -113,12 +128,24 @@ class AgentManager:
                             "payload": action.payload,
                         },
                         agent={"name": agent.name, "role": agent.role},
+                        reason=decision.reason,
+                        origin={"component": "Inquisitor", "location": "permission_judge.py"},
                     )
                     request_ids.append(request_id)
-                    append_activity(f"Permission requested for tests in {repo_path.name}")
+                    append_activity(
+                        f"Permission requested for tests in {repo_path.name}",
+                        {
+                            "component": "Inquisitor",
+                            "location": "permission_judge.py",
+                            "reason": decision.reason,
+                        },
+                    )
                 else:
                     self.executor.execute_action(action)
-                    append_activity(f"Tests executed for {repo_path.name}")
+                    append_activity(
+                        f"Tests executed for {repo_path.name}",
+                        {"component": "Final Order", "location": "workspace_execution.py"},
+                    )
             return request_ids
 
     def run_cursor_prompt_flow(self) -> List[str]:
@@ -154,10 +181,22 @@ class AgentManager:
                             "payload": action.payload,
                         },
                         agent={"name": agent.name, "role": agent.role},
+                        reason=decision.reason,
+                        origin={"component": "Inquisitor", "location": "permission_judge.py"},
                     )
                     request_ids.append(request_id)
-                    append_activity(f"Permission requested for Cursor prompt in {repo_path.name}")
+                    append_activity(
+                        f"Permission requested for Cursor prompt in {repo_path.name}",
+                        {
+                            "component": "Inquisitor",
+                            "location": "permission_judge.py",
+                            "reason": decision.reason,
+                        },
+                    )
                 else:
                     self.executor.execute_action(action)
-                    append_activity(f"Cursor prompt queued for {repo_path.name}")
+                    append_activity(
+                        f"Cursor prompt queued for {repo_path.name}",
+                        {"component": "Final Order", "location": "workspace_execution.py"},
+                    )
             return request_ids

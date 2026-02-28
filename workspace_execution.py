@@ -149,7 +149,13 @@ class WorkspaceExecutor:
         )
         append_activity(
             f"Tests executed for {repo_path.name}",
-            {"status": result.get("status"), "runner": result.get("runner")},
+            {
+                "status": result.get("status"),
+                "runner": result.get("runner"),
+                "component": "Final Order",
+                "location": "workspace_execution.py",
+                "llm_used": "none",
+            },
         )
         return str(result.get("status"))
 
@@ -157,7 +163,14 @@ class WorkspaceExecutor:
         repo_path = action.payload.get("repo_path", "")
         prompt = action.payload.get("prompt", "")
         add_cursor_prompt(repo_path, prompt)
-        append_activity(f"Cursor prompt queued for {Path(repo_path).name}")
+        append_activity(
+            f"Cursor prompt queued for {Path(repo_path).name}",
+            {
+                "component": "Final Order",
+                "location": "workspace_execution.py",
+                "llm_used": "cursor_instructions",
+            },
+        )
         return "queued"
 
     def run_in_sandbox(self, command: str) -> str:
