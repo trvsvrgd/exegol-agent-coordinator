@@ -33,6 +33,15 @@ Build a minimal demo app to validate agent orchestration and permissions.
     - [x] Task 3.3: Add Cursor prompt agent + UI display
     - [x] Task 3.4: Add tests for repo audit workflow
 
+- [ ] **Phase 4: Windows Packaging**
+    - [x] Task 4.1: Add PyInstaller build script + spec
+    - [x] Task 4.2: Document .exe build in README
+
+- [ ] **Phase 5: Windows UX**
+    - [x] Task 5.1: Add one-click launcher scripts
+    - [x] Task 5.2: Add MSI installer scaffolding (WiX)
+    - [x] Task 5.3: Add icon preparation workflow
+
 ## Verification Evidence (For Auditors)
 - [AI to paste terminal logs or test results here after each successful run]
 

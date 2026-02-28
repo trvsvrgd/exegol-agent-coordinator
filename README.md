@@ -45,6 +45,41 @@ Optional environment overrides:
 pytest
 ```
 
+## Windows .exe Build
+```powershell
+.\scripts\build_exe.ps1
+```
+
+The executable is output to `dist\exegol\exegol.exe`.
+
+## One-Click Launcher
+- `launch_exegol.bat` (double-click)
+- `launch_exegol.ps1` (PowerShell)
+
+If the `.exe` exists it will run it; otherwise it falls back to Streamlit.
+
+## App Icon (Optional)
+Set `EXEGOL_ICON_PATH` to your PNG file before building:
+```powershell
+$env:EXEGOL_ICON_PATH="C:\path\to\icon.png"
+.\scripts\build_exe.ps1
+```
+
+The build scripts will generate `assets\icon.ico` and apply it to the `.exe` and MSI.
+
+## Windows MSI Installer (WiX)
+1. Install the WiX Toolset v3 and ensure `candle.exe` and `light.exe` are in PATH.
+2. Build the `.exe` first:
+   ```powershell
+   .\scripts\build_exe.ps1
+   ```
+3. Build the MSI:
+   ```powershell
+   .\scripts\build_msi.ps1 -Version 0.1.0
+   ```
+
+The installer is output to `installer\dist\exegol-<version>.msi`.
+
 ## Security Notes
 - No secrets are hardcoded; use environment variables for local configuration.
 - Permission checks gate high-impact actions like git commits.

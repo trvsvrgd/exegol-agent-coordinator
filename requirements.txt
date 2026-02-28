@@ -4,3 +4,5 @@ docker
 google-generativeai
 pyyaml
 pytest
+pyinstaller
+pillow

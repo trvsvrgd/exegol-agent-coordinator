@@ -12,3 +12,10 @@ state/*
 exegol_workspace/*
 !exegol_workspace/.gitkeep
 *.log
+build/
+dist/
+installer/build/
+installer/dist/
+*.wixobj
+*.wixpdb
+*.msi

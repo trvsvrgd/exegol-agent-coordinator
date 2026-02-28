@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product
+    Id="*"
+    Name="Exegol Agent Coordinator"
+    Language="1033"
+    Version="$(var.ExegolVersion)"
+    Manufacturer="Exegol"
+    UpgradeCode="3B3D9C7D-9E6C-4C5E-9A0A-1E6E3C1F6C2A">
+    <Package InstallerVersion="500" Compressed="yes" InstallScope="perMachine" />
+
+    <Icon Id="ExegolIcon" SourceFile="assets\icon.ico" />
+    <Property Id="ARPPRODUCTICON" Value="ExegolIcon" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Exegol is already installed." />
+    <MediaTemplate />
+
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLFOLDER" Name="Exegol">
+          <Component Id="MainExecutable" Guid="87E087D7-89B6-4CC8-86B7-DFD0C8A0A4E7">
+            <File Id="ExegolExe" Source="dist\exegol\exegol.exe" KeyPath="yes" />
+          </Component>
+        </Directory>
+      </Directory>
+      <Directory Id="ProgramMenuFolder">
+        <Directory Id="ApplicationProgramsFolder" Name="Exegol">
+          <Component Id="ApplicationShortcut" Guid="741E5E97-2C19-4F32-8C9D-4AA9C4E2D5A8">
+            <Shortcut
+              Id="ApplicationStartMenuShortcut"
+              Name="Exegol"
+              Description="Exegol Agent Coordinator"
+              Icon="ExegolIcon"
+              Target="[INSTALLFOLDER]exegol.exe"
+              WorkingDirectory="INSTALLFOLDER" />
+            <RemoveFolder Id="CleanProgramMenuFolder" On="uninstall" />
+            <RegistryValue Root="HKCU" Key="Software\Exegol" Name="installed" Type="integer" Value="1" KeyPath="yes" />
+          </Component>
+        </Directory>
+      </Directory>
+      <Directory Id="DesktopFolder">
+        <Component Id="DesktopShortcut" Guid="6F49F8F7-79E1-44A1-8E2C-79D4B3E3B1EF">
+          <Shortcut
+            Id="DesktopShortcutLink"
+            Name="Exegol"
+            Description="Exegol Agent Coordinator"
+            Icon="ExegolIcon"
+            Target="[INSTALLFOLDER]exegol.exe"
+            WorkingDirectory="INSTALLFOLDER" />
+          <RegistryValue Root="HKCU" Key="Software\Exegol" Name="desktop" Type="integer" Value="1" KeyPath="yes" />
+        </Component>
+      </Directory>
+    </Directory>
+
+    <Feature Id="MainFeature" Title="Exegol" Level="1">
+      <ComponentRef Id="MainExecutable" />
+      <ComponentRef Id="ApplicationShortcut" />
+      <ComponentRef Id="DesktopShortcut" />
+    </Feature>
+  </Product>
+</Wix>
