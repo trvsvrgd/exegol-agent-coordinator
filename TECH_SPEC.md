@@ -1,5 +1,7 @@
 # Project Technical Specification
 
+> **Archived.** This specification applies to the archived Exegol V1 iteration. Future iterations will follow a different approach.
+
 ## High-Level Intent
 - Build Version 1 of "Exegol": a local, agentic software development framework
   that interviews users, orchestrates agents, and surfaces progress in a UI.

@@ -1,5 +1,7 @@
 # Agents
 
+> *Archived — this configuration applied to Exegol V1.*
+
 ```yaml
 agents:
   - name: "Vader"

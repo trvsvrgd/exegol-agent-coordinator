@@ -1,5 +1,7 @@
 # Exegol V1 Plan
 
+> **Archived.** This plan belongs to an archived iteration. A different approach is being pursued for the next iteration of Exegol.
+
 ## Status Summary
 - **Objective**: Build a minimal demo app to validate agent orchestration + permissions.
 - **Current Focus**: Validation evidence + packaging polish.

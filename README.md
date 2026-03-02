@@ -1,5 +1,9 @@
 # Exegol Agent Coordinator (V1)
 
+> **Archived.** This repository is archived. We are pursuing a different approach that will result in a different iteration of Exegol. This codebase remains available for reference but is no longer under active development.
+
+---
+
 Local-first, agentic software development framework with a Streamlit UI, markdown-driven state, and permission-gated automation. The goal is to interview users about a business pain point and orchestrate agents to build, test, and deploy solutions — while keeping all actions transparent and auditable.
 
 ## What’s Included
